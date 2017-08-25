@@ -80,8 +80,12 @@ const config = {
             },
             {
                 test: /\.handlebars$/,
-                loader: 'text-loader',
+                loader: 'raw-loader',
             },
+            {
+                test: /\.md$/,
+                loader: 'raw-loader',
+            }
         ],
     },
 
