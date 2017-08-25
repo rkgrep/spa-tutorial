@@ -2,9 +2,18 @@
 const isProd = process.env.NODE_ENV === 'production'
 
 const { resolve } = require('path')
-const { ProvidePlugin } = require('webpack')
+
+const {
+    ProvidePlugin,
+    DllPlugin,
+    optimize: {
+        CommonsChunkPlugin,
+    }
+} = require('webpack')
+
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
 const config = {
     // Include source maps in development files
@@ -15,6 +24,12 @@ const config = {
     },
 
     entry: {
+        vendor: [
+            'jquery',
+            'bootstrap',
+            'moment',
+            'handlebars',
+        ],
         app: resolve(__dirname, '..', 'src', 'index.js'),
     },
 
@@ -103,7 +118,23 @@ const config = {
             filename: 'style.[hash].css',
             disable: !isProd,
         }),
+        new BundleAnalyzerPlugin({
+            analyzerMode: isProd ? 'static' : 'disabled',
+            generateStatsFile: isProd,
+        }),
+        new CommonsChunkPlugin({
+            name: 'vendor',
+            minChunks: Infinity,
+        })
     ],
+
+    profile: isProd,
+
+    performance: {
+        hints: 'warning',
+        maxEntrypointSize: 400000,
+        maxAssetSize: 300000,
+    },
 }
 
 if (!isProd) {
