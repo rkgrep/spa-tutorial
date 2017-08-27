@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack-dev-server --hot --inline --config build/base.config.js",
-    "build": "rimraf ./dist && NODE_ENV=production webpack --config build/base.config.js",
+    "build": "rimraf ./dist && NODE_ENV=production webpack --config build/webpack.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Roman Kinyakin <1@grep.su>",
   "license": "UNLICENSED",
   "devDependencies": {
+    "assets-webpack-plugin": "^3.5.1",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",

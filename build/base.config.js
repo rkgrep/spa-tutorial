@@ -5,7 +5,7 @@ const { resolve } = require('path')
 
 const {
     ProvidePlugin,
-    DllPlugin,
+    DllReferencePlugin,
     optimize: {
         CommonsChunkPlugin,
     }
@@ -14,8 +14,12 @@ const {
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const AssetsPlugin = require('./AssetsPlugin')
 
 const config = {
+    name: 'base',
+    dependencies: ['templating'],
+
     // Include source maps in development files
     devtool: isProd ? false : '#cheap-module-source-map',
 
@@ -28,7 +32,6 @@ const config = {
             'jquery',
             'bootstrap',
             'moment',
-            'handlebars',
         ],
         app: resolve(__dirname, '..', 'src', 'index.js'),
     },
@@ -113,7 +116,9 @@ const config = {
         new HtmlWebpackPlugin({
             title: 'SPA tutorial',
             template: resolve(__dirname, '..', 'src', 'html', 'index.ejs'),
+            chunks: ['app', 'vendor', 'templating'],
         }),
+        AssetsPlugin,
         new ExtractTextPlugin({
             filename: 'style.[hash].css',
             disable: !isProd,
@@ -121,11 +126,15 @@ const config = {
         new BundleAnalyzerPlugin({
             analyzerMode: isProd ? 'static' : 'disabled',
             generateStatsFile: isProd,
+            openAnalyzer: false,
         }),
         new CommonsChunkPlugin({
             name: 'vendor',
             minChunks: Infinity,
-        })
+        }),
+        new DllReferencePlugin({
+            manifest: resolve(__dirname, '..', 'dist', 'templating-manifest.json'),
+        }),
     ],
 
     profile: isProd,
