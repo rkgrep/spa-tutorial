@@ -25,6 +25,8 @@ const cssLoader = {
     },
 }
 
+const srcDir = resolve(__dirname, '..', 'src')
+
 const config = {
     name: 'base',
     dependencies: ['templating'],
@@ -42,7 +44,7 @@ const config = {
             'bootstrap',
             'moment',
         ],
-        app: resolve(__dirname, '..', 'src', 'index.js'),
+        app: resolve(srcDir, 'index.js'),
     },
 
     output: {
@@ -57,7 +59,11 @@ const config = {
             resolve(__dirname, '..', 'node_modules'),
         ],
         alias: {
+            'highlight.js$': resolve(srcDir, 'lib', 'highlight.js'),
             handlebars: 'handlebars/dist/handlebars.min.js',
+
+            '~html': resolve(srcDir, 'html'),
+            '~styles': resolve(srcDir, 'styles'),
         }
     },
 

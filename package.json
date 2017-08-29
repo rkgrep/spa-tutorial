@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack-dev-server --hot --inline --config build/base.config.js",
-    "build": "rimraf ./dist && NODE_ENV=production webpack --config build/webpack.config.js",
+    "build": "rimraf ./dist && NODE_ENV=production webpack --config build/webpack.config.js --hide-modules --progress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Roman Kinyakin <1@grep.su>",
