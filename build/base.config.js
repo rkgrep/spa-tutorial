@@ -6,8 +6,10 @@ const { resolve } = require('path')
 const {
     ProvidePlugin,
     DllReferencePlugin,
+    ContextReplacementPlugin,
     optimize: {
         CommonsChunkPlugin,
+        UglifyJsPlugin,
     }
 } = require('webpack')
 
@@ -15,6 +17,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const AssetsPlugin = require('./AssetsPlugin')
+
+const cssLoader = {
+    loader: 'css-loader',
+    options: {
+        minimize: true,
+    },
+}
 
 const config = {
     name: 'base',
@@ -57,20 +66,23 @@ const config = {
             {
                 test: /\.js$/,
                 loader: 'babel-loader',
-                exclude: /node_modules/
+                exclude: /node_modules/,
+                options: {
+                    presets: ['env'],
+                }
             },
             {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
-                    use: 'css-loader',
+                    use: cssLoader,
                 }),
             },
             {
                 test: /\.scss|\.sass$/,
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
-                    use: ['css-loader', 'sass-loader'],
+                    use: [cssLoader, 'sass-loader'],
                 }),
             },
             {
@@ -135,6 +147,8 @@ const config = {
         new DllReferencePlugin({
             manifest: resolve(__dirname, '..', 'dist', 'templating-manifest.json'),
         }),
+        new UglifyJsPlugin(),
+        new ContextReplacementPlugin(/moment[\/\\]locale$/, /en|vi|ja/),
     ],
 
     profile: isProd,
