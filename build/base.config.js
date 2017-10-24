@@ -7,11 +7,20 @@ const {
     ProvidePlugin,
     DllReferencePlugin,
     ContextReplacementPlugin,
+    DefinePlugin,
+    BannerPlugin,
     optimize: {
         CommonsChunkPlugin,
         UglifyJsPlugin,
     }
 } = require('webpack')
+
+const banner = `
+file: [file]
+author: rkgrep
+source: https://github.com/rkgrep/spa-tutorial
+license: MIT
+`
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
@@ -27,23 +36,25 @@ const cssLoader = {
 
 const srcDir = resolve(__dirname, '..', 'src')
 
+const vendor = [
+    'jquery',
+    'bootstrap',
+    'moment',
+]
+
 const config = {
     name: 'base',
     dependencies: ['templating'],
 
     // Include source maps in development files
-    devtool: isProd ? false : '#cheap-module-source-map',
+    devtool: isProd ? '#source-map' : '#cheap-module-eval-source-map',
 
     node: {
         fs: 'empty'
     },
 
     entry: {
-        vendor: [
-            'jquery',
-            'bootstrap',
-            'moment',
-        ],
+        vendor,
         app: resolve(srcDir, 'index.js'),
     },
 
@@ -141,20 +152,17 @@ const config = {
             filename: 'style.[hash].css',
             disable: !isProd,
         }),
-        new BundleAnalyzerPlugin({
-            analyzerMode: isProd ? 'static' : 'disabled',
-            generateStatsFile: isProd,
-            openAnalyzer: false,
-        }),
         new CommonsChunkPlugin({
             name: 'vendor',
             minChunks: Infinity,
         }),
-        new DllReferencePlugin({
-            manifest: resolve(__dirname, '..', 'dist', 'templating-manifest.json'),
-        }),
-        new UglifyJsPlugin(),
         new ContextReplacementPlugin(/moment[\/\\]locale$/, /en|vi|ja/),
+        new DefinePlugin({
+            PRODUCTION: JSON.stringify(isProd),
+            EXPRESSION: '1 + 1',
+            RESULT: JSON.stringify('1 + 1'),
+            DEV: JSON.stringify(!isProd),
+        }),
     ],
 
     profile: isProd,
@@ -173,6 +181,26 @@ if (!isProd) {
         publicPath: '/',
         historyApiFallback: true,
     }
+}
+
+if (isProd) {
+    config.plugins = [
+        ...config.plugins,
+        new DllReferencePlugin({
+            manifest: resolve(__dirname, '..', 'dist', 'templating-manifest.json'),
+        }),
+        new BundleAnalyzerPlugin({
+            analyzerMode: isProd ? 'static' : 'disabled',
+            generateStatsFile: isProd,
+            openAnalyzer: false,
+        }),
+        new UglifyJsPlugin({
+            sourceMap: true,
+        }),
+        new BannerPlugin({
+            banner,
+        }),
+    ]
 }
 
 module.exports = config
